@@ -27,7 +27,11 @@ impl Platform {
         }
         let height = grid.len();
         let width = grid[0].len();
-        Self { grid, height, width }
+        Self {
+            grid,
+            height,
+            width,
+        }
     }
 
     fn tilt_north(&mut self) {
@@ -67,7 +71,7 @@ impl Platform {
     }
 
     fn tilt_south(&mut self) {
-        for i in (0..(self.height-1)).rev() {
+        for i in (0..(self.height - 1)).rev() {
             for j in 0..self.width {
                 if self.grid[i][j] == 'O' {
                     let mut k = 0;
@@ -136,7 +140,12 @@ fn part2(input: &str, n_cycles: usize) -> usize {
             let cycle_offset = n_cycles - cycle_start;
             let cycle_index = cycle_offset % cycle_length;
             let end_state = cycle_start + cycle_index;
-            platform.grid = state_cache.iter().find(|(_, &v)| v == end_state).unwrap().0.clone();
+            platform.grid = state_cache
+                .iter()
+                .find(|(_, &v)| v == end_state)
+                .unwrap()
+                .0
+                .clone();
             break;
         } else {
             state_cache.insert(platform.grid.clone(), i);
@@ -146,13 +155,13 @@ fn part2(input: &str, n_cycles: usize) -> usize {
     platform.get_load()
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn it_works() {
-        let result = part2("O....#....
+        let result = part2(
+            "O....#....
 O.OO#....#
 .....##...
 OO.#O....O
@@ -161,7 +170,9 @@ O.#..O.#.#
 ..O..#O..O
 .......O..
 #....###..
-#OO..#....", 1000000000);
+#OO..#....",
+            1000000000,
+        );
         assert_eq!(result, 64);
     }
 }

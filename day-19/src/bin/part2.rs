@@ -1,4 +1,4 @@
-use std::collections::{ HashMap, VecDeque };
+use std::collections::{HashMap, VecDeque};
 
 fn main() {
     let input = include_str!("./input19.txt");
@@ -15,13 +15,17 @@ struct Workflow {
 
 impl Workflow {
     fn new(name: String, rules: Vec<Rule>, default: String) -> Self {
-        Workflow { name, rules, default }
+        Workflow {
+            name,
+            rules,
+            default,
+        }
     }
 
     fn from_string(input: String) -> Self {
         let mut rules: Vec<Rule> = Vec::new();
         let mut default: String = String::new();
-        let mut wf = input.split(['{','}']);
+        let mut wf = input.split(['{', '}']);
         let name = wf.next().unwrap().to_string();
         let rules_raw = wf.next().unwrap().split(',');
         for rule in rules_raw {
@@ -70,7 +74,12 @@ struct Rule {
 
 impl Rule {
     fn new(category: char, operation: char, value: usize, destination: String) -> Self {
-        Rule { category, operation, value, destination }
+        Rule {
+            category,
+            operation,
+            value,
+            destination,
+        }
     }
 
     fn from_str(input: &str) -> Self {
@@ -99,42 +108,45 @@ impl Range {
     }
 
     fn get_value(&self) -> usize {
-        (self.x.1 - self.x.0 + 1)  * (self.m.1 - self.m.0 + 1) * (self.a.1 - self.a.0 + 1) * (self.s.1 - self.s.0 + 1)
+        (self.x.1 - self.x.0 + 1)
+            * (self.m.1 - self.m.0 + 1)
+            * (self.a.1 - self.a.0 + 1)
+            * (self.s.1 - self.s.0 + 1)
     }
 
     fn split(&self, category: char, value: usize) -> Option<(Self, Self)> {
         match category {
             'x' => {
                 if self.x.0 < value && value <= self.x.1 {
-                    let left = Range::new((self.x.0.clone(), value - 1), self.m.clone(), self.a.clone(), self.s.clone());
-                    let right = Range::new((value, self.x.1.clone()), self.m.clone(), self.a.clone(), self.s.clone());
+                    let left = Range::new((self.x.0, value - 1), self.m, self.a, self.s);
+                    let right = Range::new((value, self.x.1), self.m, self.a, self.s);
                     return Some((left, right));
                 }
-                return None;
+                None
             }
             'm' => {
                 if self.m.0 < value && value <= self.m.1 {
-                    let left = Range::new(self.x.clone(), (self.m.0.clone(), value - 1), self.a.clone(), self.s.clone());
-                    let right = Range::new(self.x.clone(), (value, self.m.1.clone()), self.a.clone(), self.s.clone());
+                    let left = Range::new(self.x, (self.m.0, value - 1), self.a, self.s);
+                    let right = Range::new(self.x, (value, self.m.1), self.a, self.s);
                     return Some((left, right));
                 }
-                return None;
+                None
             }
             'a' => {
                 if self.a.0 < value && value <= self.a.1 {
-                    let left = Range::new(self.x.clone(), self.m.clone(), (self.a.0.clone(), value - 1), self.s.clone());
-                    let right = Range::new(self.x.clone(), self.m.clone(), (value, self.a.1.clone()), self.s.clone());
+                    let left = Range::new(self.x, self.m, (self.a.0, value - 1), self.s);
+                    let right = Range::new(self.x, self.m, (value, self.a.1), self.s);
                     return Some((left, right));
                 }
-                return None;
+                None
             }
             's' => {
                 if self.s.0 < value && value <= self.s.1 {
-                    let left = Range::new(self.x.clone(), self.m.clone(), self.a.clone(), (self.s.0.clone(), value - 1));
-                    let right = Range::new(self.x.clone(), self.m.clone(), self.a.clone(), (value, self.s.1.clone()));
+                    let left = Range::new(self.x, self.m, self.a, (self.s.0, value - 1));
+                    let right = Range::new(self.x, self.m, self.a, (value, self.s.1));
                     return Some((left, right));
                 }
-                return None;
+                None
             }
             _ => panic!("Invalid category"),
         }
@@ -142,80 +154,70 @@ impl Range {
 
     fn apply_rule(&self, rule: &Rule) -> Option<(usize, char)> {
         match rule.category {
-            'x' => {
-                match rule.operation {
-                    '<' => {
-                        if self.x.0.clone() < rule.value && rule.value <= self.x.1.clone() {
-                            return Some((rule.value, 'x'));
-                        }
-                        return None;
+            'x' => match rule.operation {
+                '<' => {
+                    if self.x.0 < rule.value && rule.value <= self.x.1 {
+                        return Some((rule.value, 'x'));
                     }
-                    '>' => {
-                        if self.x.0.clone() <= rule.value && rule.value < self.x.1.clone() {
-                            return Some((rule.value + 1, 'x'));
-                        }
-                        return None;
-                    }
-                    _ => panic!("Invalid operation"),
+                    None
                 }
-            }
-            'm' => {
-                match rule.operation {
-                    '<' => {
-                         if self.m.0.clone() < rule.value && rule.value <= self.m.1.clone() {
-                            return Some((rule.value, 'm'));
-                         }
-                        return None;
+                '>' => {
+                    if self.x.0 <= rule.value && rule.value < self.x.1 {
+                        return Some((rule.value + 1, 'x'));
                     }
-                    '>' => {
-                        if self.m.0.clone() <= rule.value && rule.value < self.m.1.clone() {
-                            return Some((rule.value + 1, 'm'));
-                        }
-                        return None;
-                    }
-                    _ => panic!("Invalid operation"),
+                    None
                 }
-            }
-            'a' => {
-                match rule.operation {
-                    '<' => {
-                        if self.a.0.clone() < rule.value && rule.value <= self.a.1.clone() {
-                            return Some((rule.value, 'a'));
-                        }
-                        return None;
+                _ => panic!("Invalid operation"),
+            },
+            'm' => match rule.operation {
+                '<' => {
+                    if self.m.0 < rule.value && rule.value <= self.m.1 {
+                        return Some((rule.value, 'm'));
                     }
-                    '>' => {
-                        if self.a.0.clone() <= rule.value && rule.value < self.a.1.clone() {
-                            return Some((rule.value + 1, 'a'));
-                        }
-                        return None;
-                    }
-                    _ => panic!("Invalid operation"),
+                    None
                 }
-            }
-            's' => {
-                match rule.operation {
-                    '<' => {
-                         if self.s.0.clone() < rule.value && rule.value <= self.s.1.clone() {
-                            return Some((rule.value, 's'));
-                         }
-                        return None;
+                '>' => {
+                    if self.m.0 <= rule.value && rule.value < self.m.1 {
+                        return Some((rule.value + 1, 'm'));
                     }
-                    '>' => {
-                         if self.s.0.clone() <= rule.value && rule.value < self.s.1.clone() {
-                            return Some((rule.value + 1, 's'));
-                         }
-                        return None;
-                    }
-                    _ => panic!("Invalid operation"),
+                    None
                 }
-            }
+                _ => panic!("Invalid operation"),
+            },
+            'a' => match rule.operation {
+                '<' => {
+                    if self.a.0 < rule.value && rule.value <= self.a.1 {
+                        return Some((rule.value, 'a'));
+                    }
+                    None
+                }
+                '>' => {
+                    if self.a.0 <= rule.value && rule.value < self.a.1 {
+                        return Some((rule.value + 1, 'a'));
+                    }
+                    None
+                }
+                _ => panic!("Invalid operation"),
+            },
+            's' => match rule.operation {
+                '<' => {
+                    if self.s.0 < rule.value && rule.value <= self.s.1 {
+                        return Some((rule.value, 's'));
+                    }
+                    None
+                }
+                '>' => {
+                    if self.s.0 <= rule.value && rule.value < self.s.1 {
+                        return Some((rule.value + 1, 's'));
+                    }
+                    None
+                }
+                _ => panic!("Invalid operation"),
+            },
             _ => panic!("Invalid category"),
         }
     }
 }
-
-
 
 fn part2(input: &str) -> usize {
     let mut secret: usize = 0;
@@ -223,7 +225,10 @@ fn part2(input: &str) -> usize {
     let min: usize = 1;
 
     let mut ranges: VecDeque<(Range, String)> = VecDeque::new();
-    ranges.push_back((Range::new((min, max), (min, max), (min, max), (min, max)), String::from("in")));
+    ranges.push_back((
+        Range::new((min, max), (min, max), (min, max), (min, max)),
+        String::from("in"),
+    ));
 
     let mut workflows: HashMap<String, Workflow> = HashMap::new();
     let mut split_input = input.split("\n\n");
@@ -233,8 +238,7 @@ fn part2(input: &str) -> usize {
         workflows.insert(workflow.name.clone(), workflow);
     }
 
-    while ranges.len() > 0 {
-        let (range, next) = ranges.pop_front().unwrap();
+    while let Some((range, next)) = ranges.pop_front() {
         if next == "A" {
             secret += range.get_value();
             continue;
@@ -250,13 +254,13 @@ fn part2(input: &str) -> usize {
     secret
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn it_works() {
-        let result = part2("px{a<2006:qkq,m>2090:A,rfg}
+        let result = part2(
+            "px{a<2006:qkq,m>2090:A,rfg}
 pv{a>1716:R,A}
 lnx{m>1548:A,A}
 rfg{s<537:gd,x>2440:R,A}
@@ -272,7 +276,8 @@ hdj{m>838:A,pv}
 {x=1679,m=44,a=2067,s=496}
 {x=2036,m=264,a=79,s=2244}
 {x=2461,m=1339,a=466,s=291}
-{x=2127,m=1623,a=2188,s=1013}");
+{x=2127,m=1623,a=2188,s=1013}",
+        );
         assert_eq!(result, 167409079868000);
     }
 }

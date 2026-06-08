@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use itertools::Itertools;
+use std::collections::HashMap;
 
 fn main() {
     let input = include_str!("./input8.txt");
@@ -24,21 +24,32 @@ fn part2(input: &str) -> usize {
     let mut lines = input.lines();
     let mut secret: usize = 1;
 
-    let mut rl_instructions = lines.next().unwrap().chars().collect::<Vec<char>>().into_iter().cycle();
+    let mut rl_instructions = lines
+        .next()
+        .unwrap()
+        .chars()
+        .collect::<Vec<char>>()
+        .into_iter()
+        .cycle();
 
     let mut map: HashMap<&str, (&str, &str)> = HashMap::new();
     let mut starting_points: Vec<&str> = Vec::new();
     for line in lines.filter(|&x| !x.is_empty()) {
         let mut direction = line.split(" = ");
         let source = direction.next().unwrap();
-        let destinations: (&str, &str) = direction.next().unwrap().trim_matches(|c| c == '(' || c == ')').split(", ").collect_tuple().unwrap();
+        let destinations: (&str, &str) = direction
+            .next()
+            .unwrap()
+            .trim_matches(|c| c == '(' || c == ')')
+            .split(", ")
+            .collect_tuple()
+            .unwrap();
         map.insert(source, destinations);
 
         if source.ends_with('A') {
             starting_points.push(source);
         }
     }
-
 
     for mut current in starting_points {
         let mut steps: usize = 0;
@@ -59,13 +70,13 @@ fn part2(input: &str) -> usize {
     secret
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn it_works() {
-        let result = part2("LR
+        let result = part2(
+            "LR
 
 11A = (11B, XXX)
 11B = (XXX, 11Z)
@@ -74,7 +85,8 @@ mod tests {
 22B = (22C, 22C)
 22C = (22Z, 22Z)
 22Z = (22B, 22B)
-XXX = (XXX, XXX)");
+XXX = (XXX, XXX)",
+        );
         assert_eq!(result, 6);
     }
 }

@@ -1,4 +1,4 @@
-use std::collections::{ HashMap, VecDeque };
+use std::collections::{HashMap, VecDeque};
 
 fn main() {
     let input = include_str!("./input20.txt");
@@ -27,7 +27,11 @@ struct Pulse {
 
 impl Pulse {
     fn new(pulse: PulseType, destination: String, source: String) -> Self {
-        Pulse { pulse, destination, source }
+        Pulse {
+            pulse,
+            destination,
+            source,
+        }
     }
 }
 
@@ -38,7 +42,7 @@ struct Button {
 
 impl Button {
     fn new(pulse: PulseType) -> Self {
-       Button { pulse }
+        Button { pulse }
     }
 
     fn press(&self) -> PulseType {
@@ -55,7 +59,11 @@ struct FlipFlop {
 
 impl FlipFlop {
     fn new(name: String, outputs: Vec<String>) -> Self {
-        FlipFlop { name, state: ModuleState::Off, outputs }
+        FlipFlop {
+            name,
+            state: ModuleState::Off,
+            outputs,
+        }
     }
 
     fn relay(&mut self, pulse: PulseType) -> Option<Vec<Pulse>> {
@@ -66,21 +74,27 @@ impl FlipFlop {
                     ModuleState::On => {
                         self.state = ModuleState::Off;
                         for output in &self.outputs {
-                            output_pulses.push(Pulse::new(PulseType::Low, output.clone(), self.name.clone()));
+                            output_pulses.push(Pulse::new(
+                                PulseType::Low,
+                                output.clone(),
+                                self.name.clone(),
+                            ));
                         }
                     }
                     ModuleState::Off => {
                         self.state = ModuleState::On;
                         for output in &self.outputs {
-                            output_pulses.push(Pulse::new(PulseType::High, output.clone(), self.name.clone()));
+                            output_pulses.push(Pulse::new(
+                                PulseType::High,
+                                output.clone(),
+                                self.name.clone(),
+                            ));
                         }
                     }
                 }
                 Some(output_pulses)
             }
-            PulseType::High => {
-                None
-            }
+            PulseType::High => None,
         }
     }
 }
@@ -98,7 +112,11 @@ impl Conjunction {
         for input_module in input_modules {
             inputs.insert(input_module, PulseType::Low);
         }
-        Conjunction { name, inputs, outputs }
+        Conjunction {
+            name,
+            inputs,
+            outputs,
+        }
     }
 
     fn relay(&mut self, pulse: PulseType, source: String) -> Vec<Pulse> {
@@ -107,12 +125,20 @@ impl Conjunction {
 
         if self._all_high() {
             for output in &self.outputs {
-                output_pulses.push(Pulse::new(PulseType::Low, output.clone(), self.name.clone()));
+                output_pulses.push(Pulse::new(
+                    PulseType::Low,
+                    output.clone(),
+                    self.name.clone(),
+                ));
             }
             output_pulses
         } else {
             for output in &self.outputs {
-                output_pulses.push(Pulse::new(PulseType::High, output.clone(), self.name.clone()));
+                output_pulses.push(Pulse::new(
+                    PulseType::High,
+                    output.clone(),
+                    self.name.clone(),
+                ));
             }
             output_pulses
         }
@@ -123,12 +149,12 @@ impl Conjunction {
     }
 
     fn _all_high(&self) -> bool {
-        for (_, pulse) in &self.inputs {
+        for pulse in self.inputs.values() {
             if pulse == &PulseType::Low {
                 return false;
             }
         }
-        return true;
+        true
     }
 }
 
@@ -145,7 +171,11 @@ impl Broadcaster {
     fn broadcast(&self, pulse: PulseType) -> Vec<Pulse> {
         let mut pulses: Vec<Pulse> = Vec::new();
         for dest in self.outputs.clone() {
-            pulses.push(Pulse::new(pulse.clone(), dest.clone(), "broadcaster".to_string()));
+            pulses.push(Pulse::new(
+                pulse.clone(),
+                dest.clone(),
+                "broadcaster".to_string(),
+            ));
         }
         pulses
     }
@@ -173,7 +203,7 @@ fn part2(input: &str) -> usize {
     let mut broadcaster: Broadcaster = Broadcaster::new(Vec::new());
     let mut flip_flops: HashMap<String, FlipFlop> = HashMap::new();
     let mut conjunctions: HashMap<String, Conjunction> = HashMap::new();
-    let mut cons : Vec<(String, Vec<String>)> = Vec::new();
+    let mut cons: Vec<(String, Vec<String>)> = Vec::new();
     let mut rx_input: String = String::new();
     let mut rx_feeders: Vec<String> = Vec::new();
     let mut feeder_cycles: HashMap<String, usize> = HashMap::new();
@@ -182,13 +212,21 @@ fn part2(input: &str) -> usize {
         let mut parts = line.split("->");
 
         let name: &str = parts.next().unwrap().trim();
-        let outputs: Vec<String> = parts.next().unwrap().split(',').map(|s| s.trim().to_string()).collect();
+        let outputs: Vec<String> = parts
+            .next()
+            .unwrap()
+            .split(',')
+            .map(|s| s.trim().to_string())
+            .collect();
         if outputs.contains(&String::from("rx")) {
             rx_input = name[1..].to_string();
         }
         match name.chars().next().unwrap() {
             '%' => {
-                flip_flops.insert(name[1..].to_string(), FlipFlop::new(String::from(&name[1..]), outputs));
+                flip_flops.insert(
+                    name[1..].to_string(),
+                    FlipFlop::new(String::from(&name[1..]), outputs),
+                );
             }
             '&' => {
                 cons.push((name[1..].to_string(), outputs));
@@ -213,7 +251,10 @@ fn part2(input: &str) -> usize {
                 inputs.push(name.clone());
             }
         }
-        conjunctions.insert(con.0.clone(), Conjunction::new(con.0.clone(), inputs, con.1.clone()));
+        conjunctions.insert(
+            con.0.clone(),
+            Conjunction::new(con.0.clone(), inputs, con.1.clone()),
+        );
     }
 
     let mut n_presses: usize = 0;
@@ -222,13 +263,12 @@ fn part2(input: &str) -> usize {
         let start_pulse: Vec<Pulse> = broadcaster.broadcast(button.press());
         n_presses += 1;
         pulses.extend(start_pulse);
-        while pulses.len() > 0 {
-            let pulse: Pulse = pulses.pop_front().unwrap();
-
-            if rx_feeders.contains(&pulse.source) && pulse.pulse == PulseType::High {
-                if !feeder_cycles.contains_key(&pulse.source) {
-                    feeder_cycles.insert(pulse.source.clone(), n_presses);
-                }
+        while let Some(pulse) = pulses.pop_front() {
+            if rx_feeders.contains(&pulse.source)
+                && pulse.pulse == PulseType::High
+                && !feeder_cycles.contains_key(&pulse.source)
+            {
+                feeder_cycles.insert(pulse.source.clone(), n_presses);
             }
 
             let pulse_type: PulseType = pulse.pulse.clone();
@@ -236,11 +276,16 @@ fn part2(input: &str) -> usize {
             let pulse_source: String = pulse.source.clone();
 
             if flip_flops.contains_key(&pulse_dest) {
-                if let Some(output_pulses) = flip_flops.get_mut(&pulse_dest).unwrap().relay(pulse_type) {
+                if let Some(output_pulses) =
+                    flip_flops.get_mut(&pulse_dest).unwrap().relay(pulse_type)
+                {
                     pulses.extend(output_pulses);
                 }
             } else if conjunctions.contains_key(&pulse_dest) {
-                let output_pulses: Vec<Pulse> = conjunctions.get_mut(&pulse_dest).unwrap().relay(pulse_type, pulse_source.clone());
+                let output_pulses: Vec<Pulse> = conjunctions
+                    .get_mut(&pulse_dest)
+                    .unwrap()
+                    .relay(pulse_type, pulse_source.clone());
                 pulses.extend(output_pulses);
             }
         }
@@ -255,12 +300,14 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let result = part2("broadcaster -> a
+        let result = part2(
+            "broadcaster -> a
 %a -> inv, con
 &inv -> b, deeznuts
 %b -> con
 &con -> output, deeznuts
-&deeznuts -> rx");
+&deeznuts -> rx",
+        );
         assert_eq!(result, 2);
     }
 }

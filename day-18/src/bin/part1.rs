@@ -10,7 +10,7 @@ struct Position(i32, i32);
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 struct Direction(i32, i32);
 
-fn calc_filled(vertices: &Vec<Position>) -> i32 {
+fn calc_filled(vertices: &[Position]) -> i32 {
     let mut area: i32 = 0;
     let mut perimeter: i32 = 0;
     for i in 0..(vertices.len() - 1) {
@@ -50,13 +50,13 @@ fn part1(input: &str) -> i32 {
     calc_filled(&vertices)
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn it_works() {
-        let result = part1("R 6 (#70c710)
+        let result = part1(
+            "R 6 (#70c710)
 D 5 (#0dc571)
 L 2 (#5713f0)
 D 2 (#d2c081)
@@ -69,7 +69,8 @@ U 2 (#caa171)
 R 2 (#7807d2)
 U 3 (#a77fa3)
 L 2 (#015232)
-U 2 (#7a21e3)");
+U 2 (#7a21e3)",
+        );
         assert_eq!(result, 62);
     }
 }

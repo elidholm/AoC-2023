@@ -11,7 +11,7 @@ struct Position(u32, u32);
 
 fn build_grid(input: &str) -> (HashMap<Position, char>, Position) {
     let mut grid: HashMap<Position, char> = HashMap::new();
-    let mut start: Position = Position(0,0);
+    let mut start: Position = Position(0, 0);
     for (row, line) in input.lines().enumerate() {
         for (col, ch) in line.chars().enumerate() {
             grid.insert(Position(row as u32, col as u32), ch);
@@ -23,7 +23,10 @@ fn build_grid(input: &str) -> (HashMap<Position, char>, Position) {
     (grid, start)
 }
 
-fn build_loop(grid: &HashMap<Position, char>, start: &Position) -> (HashSet<Position>, HashMap<Position, char>) {
+fn build_loop(
+    grid: &HashMap<Position, char>,
+    start: &Position,
+) -> (HashSet<Position>, HashMap<Position, char>) {
     let mut queue: VecDeque<Position> = VecDeque::new();
     let mut pipe_loop: HashSet<Position> = HashSet::new();
     let mut pipe_types: HashSet<char> = HashSet::from(['|', '-', 'L', 'J', '7', 'F']);
@@ -41,7 +44,10 @@ fn build_loop(grid: &HashMap<Position, char>, start: &Position) -> (HashSet<Posi
             if ['|', '7', 'F'].contains(north_pipe) && !pipe_loop.contains(&north) {
                 queue.push_back(north);
                 if *pipe == 'S' {
-                    pipe_types = pipe_types.intersection(&HashSet::from(['|', 'L', 'J'])).cloned().collect();
+                    pipe_types = pipe_types
+                        .intersection(&HashSet::from(['|', 'L', 'J']))
+                        .cloned()
+                        .collect();
                 }
             }
         }
@@ -51,7 +57,10 @@ fn build_loop(grid: &HashMap<Position, char>, start: &Position) -> (HashSet<Posi
             if ['|', 'L', 'J'].contains(south_pipe) && !pipe_loop.contains(&south) {
                 queue.push_back(south);
                 if *pipe == 'S' {
-                    pipe_types = pipe_types.intersection(&HashSet::from(['|', '7', 'F'])).cloned().collect();
+                    pipe_types = pipe_types
+                        .intersection(&HashSet::from(['|', '7', 'F']))
+                        .cloned()
+                        .collect();
                 }
             }
         }
@@ -61,7 +70,10 @@ fn build_loop(grid: &HashMap<Position, char>, start: &Position) -> (HashSet<Posi
             if ['-', 'L', 'F'].contains(west_pipe) && !pipe_loop.contains(&west) {
                 queue.push_back(west);
                 if *pipe == 'S' {
-                    pipe_types = pipe_types.intersection(&HashSet::from(['-', '7', 'J'])).cloned().collect();
+                    pipe_types = pipe_types
+                        .intersection(&HashSet::from(['-', '7', 'J']))
+                        .cloned()
+                        .collect();
                 }
             }
         }
@@ -71,7 +83,10 @@ fn build_loop(grid: &HashMap<Position, char>, start: &Position) -> (HashSet<Posi
             if ['-', 'J', '7'].contains(east_pipe) && !pipe_loop.contains(&east) {
                 queue.push_back(east);
                 if *pipe == 'S' {
-                    pipe_types = pipe_types.intersection(&HashSet::from(['-', 'L', 'F'])).cloned().collect();
+                    pipe_types = pipe_types
+                        .intersection(&HashSet::from(['-', 'L', 'F']))
+                        .cloned()
+                        .collect();
                 }
             }
         }
@@ -113,7 +128,8 @@ fn count_interior(pipe_loop: &HashSet<Position>, grid: &HashMap<Position, char>)
                     corner_pipes.push_back(*scan_pipe);
                 } else if !corner_pipes.is_empty()
                     && ((*scan_pipe == 'J' && *corner_pipes.iter().last().unwrap() == 'F')
-                        || (*scan_pipe == '7' && *corner_pipes.iter().last().unwrap() == 'L')) {
+                        || (*scan_pipe == '7' && *corner_pipes.iter().last().unwrap() == 'L'))
+                {
                     let _ = corner_pipes.pop_back();
                     intersections += 1;
                 }
@@ -126,21 +142,21 @@ fn count_interior(pipe_loop: &HashSet<Position>, grid: &HashMap<Position, char>)
     count
 }
 
-
 fn part2(input: &str) -> u32 {
     let (grid, start): (HashMap<Position, char>, Position) = build_grid(input);
-    let (pipe_loop, new_grid): (HashSet<Position>, HashMap<Position, char>) = build_loop(&grid, &start);
+    let (pipe_loop, new_grid): (HashSet<Position>, HashMap<Position, char>) =
+        build_loop(&grid, &start);
 
     count_interior(&pipe_loop, &new_grid)
 }
-
 
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn it_works() {
-        let result = part2("...........
+        let result = part2(
+            "...........
 .S-------7.
 .|F-----7|.
 .||.....||.
@@ -148,13 +164,15 @@ mod tests {
 .|L-7.F-J|.
 .|..|.|..|.
 .L--J.L--J.
-...........");
+...........",
+        );
         assert_eq!(result, 4);
     }
 
     #[test]
     fn it_still_works() {
-        let result = part2(".F----7F7F7F7F-7....
+        let result = part2(
+            ".F----7F7F7F7F-7....
 .|F--7||||||||FJ....
 .||.FJ||||||||L7....
 FJL7L7LJLJ||LJ.L-7..
@@ -163,13 +181,15 @@ L--J.L7...LJS7F-7L7.
 ....L7.F7||L7|.L7L7|
 .....|FJLJ|FJ|F7|.LJ
 ....FJL-7.||.||||...
-....L---J.LJ.LJLJ...");
+....L---J.LJ.LJLJ...",
+        );
         assert_eq!(result, 8);
     }
 
     #[test]
     fn it_still_works_omg() {
-        let result = part2("FF7FSF7F7F7F7F7F---7
+        let result = part2(
+            "FF7FSF7F7F7F7F7F---7
 L|LJ||||||||||||F--J
 FL-7LJLJ||||||LJL-77
 F--JF--7||LJLJ7F7FJ-
@@ -178,7 +198,8 @@ L---JF-JLJ.||-FJLJJ7
 |FFJF7L7F-JF7|JL---7
 7-L-JL7||F7|L7F-7F7|
 L.L7LFJ|||||FJL7||LJ
-L7JLJL-JLJLJL--JLJ.L");
+L7JLJL-JLJLJL--JLJ.L",
+        );
         assert_eq!(result, 10);
     }
 }

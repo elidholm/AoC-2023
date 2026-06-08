@@ -28,7 +28,7 @@ impl Grid {
         }
     }
 
-    fn symbols(&self) -> SymbolsIter {
+    fn symbols(&self) -> SymbolsIter<'_> {
         SymbolsIter::new(self)
     }
 }
@@ -69,7 +69,7 @@ impl<'a> Iterator for SymbolsIter<'a> {
     }
 }
 
-fn number_at(grid: &Grid, y: usize, x:usize) -> u32 {
+fn number_at(grid: &Grid, y: usize, x: usize) -> u32 {
     let mut start: usize = x;
     assert!(grid.data[y][x].is_ascii_digit());
 
@@ -77,7 +77,7 @@ fn number_at(grid: &Grid, y: usize, x:usize) -> u32 {
         start -= 1;
     }
     let mut end: usize = x;
-    while end < grid.width -1 && grid.data[y][end+1].is_ascii_digit() {
+    while end < grid.width - 1 && grid.data[y][end + 1].is_ascii_digit() {
         end += 1;
     }
 
@@ -91,7 +91,7 @@ fn number_at(grid: &Grid, y: usize, x:usize) -> u32 {
 }
 
 fn part2(input: &str) -> u32 {
-    let grid: Grid = Grid::new(&input);
+    let grid: Grid = Grid::new(input);
     let mut secret: u32 = 0;
     for (y, x) in grid.symbols() {
         if grid.data[y][x] != '*' {
@@ -101,9 +101,10 @@ fn part2(input: &str) -> u32 {
         let mut number_positions: Vec<(usize, usize)> = Vec::new();
 
         if y > 0 {
-            let above_left: usize = (x > 0 && grid.data[y-1][x-1].is_ascii_digit()) as usize;
-            let above: usize = grid.data[y-1][x].is_ascii_digit() as usize;
-            let above_right: usize = (x < grid.width -1 && grid.data[y-1][x+1].is_ascii_digit()) as usize;
+            let above_left: usize = (x > 0 && grid.data[y - 1][x - 1].is_ascii_digit()) as usize;
+            let above: usize = grid.data[y - 1][x].is_ascii_digit() as usize;
+            let above_right: usize =
+                (x < grid.width - 1 && grid.data[y - 1][x + 1].is_ascii_digit()) as usize;
 
             let sum: usize = above_left + above + above_right;
 
@@ -128,18 +129,19 @@ fn part2(input: &str) -> u32 {
             }
         }
 
-        if x > 0 && grid.data[y][x-1].is_ascii_digit() {
+        if x > 0 && grid.data[y][x - 1].is_ascii_digit() {
             number_positions.push((y, x - 1));
         }
 
-        if x < grid.width && grid.data[y][x+1].is_ascii_digit() {
+        if x < grid.width && grid.data[y][x + 1].is_ascii_digit() {
             number_positions.push((y, x + 1));
         }
 
         if y < grid.height - 1 {
-            let below_left: usize = (x > 0 && grid.data[y+1][x-1].is_ascii_digit()) as usize;
+            let below_left: usize = (x > 0 && grid.data[y + 1][x - 1].is_ascii_digit()) as usize;
             let below: usize = grid.data[y + 1][x].is_ascii_digit() as usize;
-            let below_right: usize = (x < grid.width - 1 && grid.data[y + 1][x + 1].is_ascii_digit()) as usize;
+            let below_right: usize =
+                (x < grid.width - 1 && grid.data[y + 1][x + 1].is_ascii_digit()) as usize;
 
             let sum: usize = below_left + below + below_right;
 
@@ -165,7 +167,9 @@ fn part2(input: &str) -> u32 {
         }
 
         if number_positions.len() == 2 {
-            secret += number_positions.iter().fold(1, |acc, (y,x)| acc * number_at(&grid, *y, *x));
+            secret += number_positions
+                .iter()
+                .fold(1, |acc, (y, x)| acc * number_at(&grid, *y, *x));
         }
     }
 
@@ -178,7 +182,7 @@ mod tests {
     #[test]
     fn it_works() {
         let result = part2(
-"467..114..
+            "467..114..
 ...*......
 ..35..633.
 ......#...
@@ -187,7 +191,8 @@ mod tests {
 ..592.....
 ......755.
 ...$.*....
-.664.598..");
+.664.598..",
+        );
         assert_eq!(result, 467835);
     }
 }

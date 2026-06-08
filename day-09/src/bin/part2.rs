@@ -4,7 +4,7 @@ fn main() {
     dbg!(output);
 }
 
-fn get_first_number(deez: &Vec<isize>) -> isize {
+fn get_first_number(deez: &[isize]) -> isize {
     if deez.iter().all(|&x| x == 0) {
         return 0;
     }
@@ -19,13 +19,15 @@ fn part2(input: &str) -> isize {
     let mut secret: isize = 0;
 
     for line in lines {
-        let history: Vec<isize> = line.split_whitespace().map(|s| s.parse::<isize>().unwrap()).collect();
+        let history: Vec<isize> = line
+            .split_whitespace()
+            .map(|s| s.parse::<isize>().unwrap())
+            .collect();
         secret += get_first_number(&history);
     }
 
     secret
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -33,9 +35,10 @@ mod tests {
     #[test]
     fn it_works() {
         let result = part2(
-"0 3 6 9 12 15
+            "0 3 6 9 12 15
 1 3 6 10 15 21
-10 13 16 21 30 45");
+10 13 16 21 30 45",
+        );
         assert_eq!(result, 2);
     }
 }

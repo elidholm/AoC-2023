@@ -1,4 +1,4 @@
-use std::collections::{ HashSet, HashMap, VecDeque };
+use std::collections::{HashMap, HashSet, VecDeque};
 
 fn main() {
     let input = include_str!("./input25.txt");
@@ -14,14 +14,14 @@ fn part1(input: &str) -> usize {
         let components: Vec<&str> = line.split_ascii_whitespace().collect();
 
         let key: &str = &components[0][..3];
-        let parent: &mut HashSet<&str> = edges.entry(key).or_insert(HashSet::new());
+        let parent: &mut HashSet<&str> = edges.entry(key).or_default();
 
         for &child in &components[1..] {
-            parent.insert(&child);
+            parent.insert(child);
         }
 
         for &child in &components[1..] {
-            let entry: &mut HashSet<&str> = edges.entry(child).or_insert(HashSet::new());
+            let entry: &mut HashSet<&str> = edges.entry(child).or_default();
             entry.insert(key);
         }
     }
@@ -54,13 +54,13 @@ fn part1(input: &str) -> usize {
     order.reverse();
 
     let cut: Vec<(&str, &str)> = order.iter().take(3).map(|p| *p.0).collect();
-    let start: &str = *edges.keys().next().unwrap();
+    let start: &str = edges.keys().next().unwrap();
     let mut size: usize = 1;
 
     let mut todo: VecDeque<&str> = VecDeque::new();
     todo.push_back(start);
 
-    let mut seen:  HashSet<&str> = HashSet::new();
+    let mut seen: HashSet<&str> = HashSet::new();
     seen.insert(start);
 
     while let Some(pos) = todo.pop_front() {
@@ -86,7 +86,8 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let result = part1("jqt: rhn xhk nvd
+        let result = part1(
+            "jqt: rhn xhk nvd
 rsh: frs pzl lsr
 xhk: hfx
 cmg: qnr nvd lhk bvb
@@ -98,7 +99,8 @@ ntq: jqt hfx bvb xhk
 nvd: lhk
 lsr: lhk
 rzs: qnr cmg lsr rsh
-frs: qnr lhk lsr");
+frs: qnr lhk lsr",
+        );
         assert_eq!(result, 54);
     }
 }

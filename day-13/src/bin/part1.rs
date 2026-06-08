@@ -27,9 +27,14 @@ fn cache_cols(group: &str) -> Cache {
     let mut col_cache: Cache = HashMap::new();
     let n_cols: usize = group.lines().next().unwrap().len();
 
-    let deez: Vec<Vec<char>> = group.lines().map(|l| l.chars().collect::<Vec<char>>()).collect();
+    let deez: Vec<Vec<char>> = group
+        .lines()
+        .map(|l| l.chars().collect::<Vec<char>>())
+        .collect();
 
-    let transposed: Vec<Vec<char>> = (0..n_cols).map(|i| deez.iter().map(|row| row[i]).collect()).collect();
+    let transposed: Vec<Vec<char>> = (0..n_cols)
+        .map(|i| deez.iter().map(|row| row[i]).collect())
+        .collect();
 
     for (col, line) in transposed.into_iter().enumerate() {
         if !col_cache.contains_key(&line) {
@@ -47,12 +52,15 @@ fn check_for_horisontal_mirror(row_cache: Cache, n_rows: u32) -> Option<u32> {
     for val in row_cache.values() {
         if val.len() > 1 {
             for i in 0..val.len() - 1 {
-                if val[i + 1] - val[i] == 1 as u32 {
+                if val[i + 1] - val[i] == 1_u32 {
                     let mut top_line: u32 = val[i];
                     let mut bottom_line: u32 = val[i + 1];
                     let refl_line: u32 = top_line;
 
-                    while row_cache.values().any(|v| v.iter().any(|&l| l == (top_line - 1)) && v.iter().any(|&l| l == (bottom_line + 1)))  {
+                    while row_cache.values().any(|v| {
+                        v.iter().any(|&l| l == (top_line - 1))
+                            && v.iter().any(|&l| l == (bottom_line + 1))
+                    }) {
                         top_line -= 1;
                         bottom_line += 1;
                     }
@@ -70,12 +78,15 @@ fn check_for_vertical_mirror(col_cache: Cache, n_cols: u32) -> Option<u32> {
     for val in col_cache.values() {
         if val.len() > 1 {
             for i in 0..val.len() - 1 {
-                if val[i + 1] - val[i] == 1 as u32 {
+                if val[i + 1] - val[i] == 1_u32 {
                     let mut left_col: u32 = val[i];
                     let mut right_col: u32 = val[i + 1];
                     let refl_col: u32 = left_col;
 
-                    while col_cache.values().any(|v| v.iter().any(|&l| l == (left_col - 1)) && v.iter().any(|&l| l == (right_col + 1)))  {
+                    while col_cache.values().any(|v| {
+                        v.iter().any(|&l| l == (left_col - 1))
+                            && v.iter().any(|&l| l == (right_col + 1))
+                    }) {
                         left_col -= 1;
                         right_col += 1;
                     }
@@ -116,7 +127,8 @@ mod tests {
     use super::*;
     #[test]
     fn it_works() {
-        let result = part1("#.##..##.
+        let result = part1(
+            "#.##..##.
 ..#.##.#.
 ##......#
 ##......#
@@ -130,7 +142,8 @@ mod tests {
 #####.##.
 #####.##.
 ..##..###
-#....#..#");
+#....#..#",
+        );
         assert_eq!(result, 405);
     }
 }

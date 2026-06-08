@@ -61,7 +61,7 @@ impl GalaxyMap {
 }
 
 fn manhattan_distance(g1: Galaxy, g2: Galaxy) -> u32 {
-    (g2.x as i32 - g1.x as i32).abs() as u32 + (g2.y as i32 - g1.y as i32).abs() as u32
+    (g2.x as i32 - g1.x as i32).unsigned_abs() + (g2.y as i32 - g1.y as i32).unsigned_abs()
 }
 
 fn part1(input: &str) -> u32 {
@@ -83,13 +83,13 @@ fn part1(input: &str) -> u32 {
     galaxy_cluster.total_distance()
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn it_works() {
-        let result = part1("...#......
+        let result = part1(
+            "...#......
 .......#..
 #.........
 ..........
@@ -98,7 +98,8 @@ mod tests {
 .........#
 ..........
 .......#..
-#...#.....");
+#...#.....",
+        );
         assert_eq!(result, 374);
     }
 }

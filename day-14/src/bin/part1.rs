@@ -24,7 +24,11 @@ impl Platform {
         }
         let height = grid.len();
         let width = grid[0].len();
-        Self { grid, height, width }
+        Self {
+            grid,
+            height,
+            width,
+        }
     }
 
     fn tilt_north(&mut self) {
@@ -66,13 +70,13 @@ fn part1(input: &str) -> usize {
     platform.get_load()
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn it_works() {
-        let result = part1("O....#....
+        let result = part1(
+            "O....#....
 O.OO#....#
 .....##...
 OO.#O....O
@@ -81,7 +85,8 @@ O.#..O.#.#
 ..O..#O..O
 .......O..
 #....###..
-#OO..#....");
-            assert_eq!(result, 136);
+#OO..#....",
+        );
+        assert_eq!(result, 136);
     }
 }

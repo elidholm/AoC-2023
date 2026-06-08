@@ -9,12 +9,9 @@ fn main() {
 type Garden = Vec<Vec<char>>;
 
 fn find_start(garden: &Garden) -> Option<(usize, usize)> {
-    let n_rows = garden.len();
-    let n_cols = garden[0].len();
-
-    for i in 0..n_rows {
-        for j in 0..n_cols {
-            if garden[i][j] == 'S' {
+    for (i, row) in garden.iter().enumerate() {
+        for (j, &cell) in row.iter().enumerate() {
+            if cell == 'S' {
                 return Some((i, j));
             }
         }
@@ -41,7 +38,7 @@ fn part1(input: &str, n_steps: usize) -> usize {
                 if i < n_rows - 1 && garden[i + 1][j] != '#' {
                     new_positions.insert((i + 1, j));
                 }
-                if j > 0 && garden[i][j - 1] != '#'{
+                if j > 0 && garden[i][j - 1] != '#' {
                     new_positions.insert((i, j - 1));
                 }
                 if j < n_cols - 1 && garden[i][j + 1] != '#' {
@@ -63,7 +60,8 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let result = part1("...........
+        let result = part1(
+            "...........
 .....###.#.
 .###.##..#.
 ..#.#...#..
@@ -73,7 +71,9 @@ mod tests {
 .......##..
 .##.#.####.
 .##..##.##.
-...........", 6);
+...........",
+            6,
+        );
         assert_eq!(result, 16);
     }
 }

@@ -16,7 +16,9 @@ impl HailStone {
     }
 
     fn to_vec(&self) -> [i128; 6] {
-        [self.pos.0, self.pos.1, self.pos.2, self.vel.0, self.vel.1, self.vel.2]
+        [
+            self.pos.0, self.pos.1, self.pos.2, self.vel.0, self.vel.1, self.vel.2,
+        ]
     }
 }
 
@@ -34,10 +36,23 @@ fn part2(input: &str) -> usize {
 
     for _ in 0..3 {
         let mut parts = lines.next().unwrap().split("@");
-        let pos: Vec<i128> = parts.next().unwrap().split(",").map(|s| s.trim().parse().unwrap()).collect();
-        let vel: Vec<i128> = parts.next().unwrap().split(",").map(|s| s.trim().parse().unwrap()).collect();
+        let pos: Vec<i128> = parts
+            .next()
+            .unwrap()
+            .split(",")
+            .map(|s| s.trim().parse().unwrap())
+            .collect();
+        let vel: Vec<i128> = parts
+            .next()
+            .unwrap()
+            .split(",")
+            .map(|s| s.trim().parse().unwrap())
+            .collect();
 
-        hail_storm.push(HailStone::new((pos[0], pos[1], pos[2]), (vel[0], vel[1], vel[2])));
+        hail_storm.push(HailStone::new(
+            (pos[0], pos[1], pos[2]),
+            (vel[0], vel[1], vel[2]),
+        ));
     }
 
     let [x1, y1, z1, vx1, vy1, vz1] = hail_storm[0].to_vec();
@@ -45,12 +60,60 @@ fn part2(input: &str) -> usize {
     let [x3, y3, z3, vx3, vy3, vz3] = hail_storm[2].to_vec();
 
     let mut matrix = [
-        [0, vz2 - vz1, vy1 - vy2, 0, z1 - z2, y2 - y1, vy1 * z1 - y1 * vz1 + y2 * vz2 - vy2 * z2],
-        [0, vz3 - vz1, vy1 - vy3, 0, z1 - z3, y3 - y1, vy1 * z1 - y1 * vz1 + y3 * vz3 - vy3 * z3],
-        [vz1 - vz2, 0, vx2 - vx1, z2 - z1, 0, x1 - x2, vz1 * x1 - z1 * vx1 + z2 * vx2 - vz2 * x2],
-        [vz1 - vz3, 0, vx3 - vx1, z3 - z1, 0, x1 - x3, vz1 * x1 - z1 * vx1 + z3 * vx3 - vz3 * x3],
-        [vy2 - vy1, vx1 - vx2, 0, y1 - y2, x2 - x1, 0, vx1 * y1 - x1 * vy1 + x2 * vy2 - vx2 * y2],
-        [vy3 - vy1, vx1 - vx3, 0, y1 - y3, x3 - x1, 0, vx1 * y1 - x1 * vy1 + x3 * vy3 - vx3 * y3],
+        [
+            0,
+            vz2 - vz1,
+            vy1 - vy2,
+            0,
+            z1 - z2,
+            y2 - y1,
+            vy1 * z1 - y1 * vz1 + y2 * vz2 - vy2 * z2,
+        ],
+        [
+            0,
+            vz3 - vz1,
+            vy1 - vy3,
+            0,
+            z1 - z3,
+            y3 - y1,
+            vy1 * z1 - y1 * vz1 + y3 * vz3 - vy3 * z3,
+        ],
+        [
+            vz1 - vz2,
+            0,
+            vx2 - vx1,
+            z2 - z1,
+            0,
+            x1 - x2,
+            vz1 * x1 - z1 * vx1 + z2 * vx2 - vz2 * x2,
+        ],
+        [
+            vz1 - vz3,
+            0,
+            vx3 - vx1,
+            z3 - z1,
+            0,
+            x1 - x3,
+            vz1 * x1 - z1 * vx1 + z3 * vx3 - vz3 * x3,
+        ],
+        [
+            vy2 - vy1,
+            vx1 - vx2,
+            0,
+            y1 - y2,
+            x2 - x1,
+            0,
+            vx1 * y1 - x1 * vy1 + x2 * vy2 - vx2 * y2,
+        ],
+        [
+            vy3 - vy1,
+            vx1 - vx3,
+            0,
+            y1 - y3,
+            x3 - x1,
+            0,
+            vx1 * y1 - x1 * vy1 + x3 * vy3 - vx3 * y3,
+        ],
     ];
 
     for pivot in 0..6 {
@@ -118,11 +181,13 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let result = part2("19, 13, 30 @ -2,  1, -2
+        let result = part2(
+            "19, 13, 30 @ -2,  1, -2
 18, 19, 22 @ -1, -1, -2
 20, 25, 34 @ -2, -2, -4
 12, 31, 28 @ -1, -2, -1
-20, 19, 15 @  1, -5, -3");
+20, 19, 15 @  1, -5, -3",
+        );
         assert_eq!(result, 47);
     }
 }

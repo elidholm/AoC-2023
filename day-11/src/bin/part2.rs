@@ -40,8 +40,10 @@ impl GalaxyMap {
         }
 
         for (idx, galaxy) in self.galaxies.clone().into_iter().enumerate() {
-            let row_shift: usize = empty_rows.iter().filter(|&row| *row < galaxy.x).count() * (offset - 1);
-            let col_shift: usize = empty_cols.iter().filter(|&col| *col < galaxy.y).count() * (offset - 1);
+            let row_shift: usize =
+                empty_rows.iter().filter(|&row| *row < galaxy.x).count() * (offset - 1);
+            let col_shift: usize =
+                empty_cols.iter().filter(|&col| *col < galaxy.y).count() * (offset - 1);
 
             self.galaxies[idx] = Galaxy::new(galaxy.x + row_shift, galaxy.y + col_shift);
         }
@@ -83,13 +85,13 @@ fn part2(input: &str, offset: usize) -> usize {
     galaxy_cluster.total_distance()
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn it_works() {
-        let result = part2("...#......
+        let result = part2(
+            "...#......
 .......#..
 #.........
 ..........
@@ -98,13 +100,16 @@ mod tests {
 .........#
 ..........
 .......#..
-#...#.....", 10);
+#...#.....",
+            10,
+        );
         assert_eq!(result, 1030);
     }
 
     #[test]
     fn it_still_works() {
-        let result = part2("...#......
+        let result = part2(
+            "...#......
 .......#..
 #.........
 ..........
@@ -113,7 +118,9 @@ mod tests {
 .........#
 ..........
 .......#..
-#...#.....", 100);
+#...#.....",
+            100,
+        );
         assert_eq!(result, 8410);
     }
 }

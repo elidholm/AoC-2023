@@ -102,18 +102,27 @@ impl MapPipeline {
     }
 
     fn get_from_level(&self, src: usize, already_applied: usize) -> usize {
-        self.maps[already_applied..].iter().fold(src, |v, m| m.get(v))
+        self.maps[already_applied..]
+            .iter()
+            .fold(src, |v, m| m.get(v))
     }
 }
 
 fn part2(input: &str) -> usize {
-
     let mut groups = input.split("\n\n");
 
-    let seed_data: Vec<usize> = groups.next().unwrap().split(":").nth(1).unwrap().split_whitespace().map(|s| s.parse::<usize>().unwrap()).collect();
+    let seed_data: Vec<usize> = groups
+        .next()
+        .unwrap()
+        .split(":")
+        .nth(1)
+        .unwrap()
+        .split_whitespace()
+        .map(|s| s.parse::<usize>().unwrap())
+        .collect();
     let mut seed_ranges: Vec<Range<usize>> = Vec::new();
     for i in (0..seed_data.len()).step_by(2) {
-        seed_ranges.push(seed_data[i]..(seed_data[i]+seed_data[i+1]));
+        seed_ranges.push(seed_data[i]..(seed_data[i] + seed_data[i + 1]));
     }
 
     let mut maps: Vec<IntMap> = Vec::new();
@@ -121,7 +130,11 @@ fn part2(input: &str) -> usize {
         let lines = group.split(":\n").nth(1).unwrap().lines();
         let mut ranges: Vec<RangeMap> = Vec::new();
         for line in lines {
-            ranges.push(RangeMap::from(line.split_whitespace().map(|s| s.parse::<usize>().unwrap()).collect()));
+            ranges.push(RangeMap::from(
+                line.split_whitespace()
+                    .map(|s| s.parse::<usize>().unwrap())
+                    .collect(),
+            ));
         }
         maps.push(IntMap::new(ranges));
     }
@@ -151,13 +164,13 @@ fn part2(input: &str) -> usize {
         )
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn it_works() {
-        let result = part2("seeds: 79 14 55 13
+        let result = part2(
+            "seeds: 79 14 55 13
 
 seed-to-soil map:
 50 98 2
@@ -189,8 +202,8 @@ temperature-to-humidity map:
 
 humidity-to-location map:
 60 56 37
-56 93 4");
+56 93 4",
+        );
         assert_eq!(result, 46);
     }
 }
-

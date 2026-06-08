@@ -16,13 +16,13 @@ fn parse_lens_info(input: &str) -> (u32, char, Option<u32>) {
             operation = c;
             continue;
         }
-        if c.is_digit(10) {
+        if c.is_ascii_digit() {
             focal_length = Some(c.to_digit(10).unwrap());
             break;
         }
         box_nr += c as u32;
         box_nr *= 17;
-        box_nr = box_nr % 256;
+        box_nr %= 256;
     }
 
     (box_nr, operation, focal_length)
@@ -30,7 +30,7 @@ fn parse_lens_info(input: &str) -> (u32, char, Option<u32>) {
 
 fn perform_operation<'a>(step: &'a str, box_hash: &mut HashMap<u32, Vec<(&'a str, u32)>>) {
     let (box_nr, operation, focal_length) = parse_lens_info(step);
-    let label: &str = step.split(['-', '=']).nth(0).unwrap();
+    let label: &str = step.split(['-', '=']).next().unwrap();
 
     match operation {
         '-' => {
@@ -39,7 +39,7 @@ fn perform_operation<'a>(step: &'a str, box_hash: &mut HashMap<u32, Vec<(&'a str
                 v.retain(|&l| l.0 != label);
                 box_hash.insert(box_nr, v);
             }
-        },
+        }
         '=' => {
             if box_hash.contains_key(&box_nr) {
                 let mut v: Vec<(&str, u32)> = box_hash.get(&box_nr).unwrap().to_vec();
@@ -52,7 +52,7 @@ fn perform_operation<'a>(step: &'a str, box_hash: &mut HashMap<u32, Vec<(&'a str
             } else {
                 box_hash.insert(box_nr, vec![(label, focal_length.unwrap_or(0))]);
             }
-        },
+        }
         _ => panic!("Unknown operation: {}", operation),
     }
 }
@@ -60,7 +60,7 @@ fn perform_operation<'a>(step: &'a str, box_hash: &mut HashMap<u32, Vec<(&'a str
 fn focusing_power(box_hash: &HashMap<u32, Vec<(&str, u32)>>) -> u32 {
     let mut power: u32 = 0;
     for (box_number, v) in box_hash {
-        for (idx, (_, f)) in v.into_iter().enumerate() {
+        for (idx, (_, f)) in v.iter().enumerate() {
             power += (box_number + 1) * (idx as u32 + 1) * f;
         }
     }
@@ -71,15 +71,12 @@ fn part2(input: &str) -> u32 {
     let steps: Vec<&str> = input.split(",").collect();
     let mut box_hash: HashMap<u32, Vec<(&str, u32)>> = HashMap::new();
 
-
     for step in steps {
         perform_operation(step, &mut box_hash);
     }
 
-
     focusing_power(&box_hash)
 }
-
 
 #[cfg(test)]
 mod tests {

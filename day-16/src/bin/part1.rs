@@ -64,38 +64,18 @@ impl Beam {
 
 fn reflect(dir: Direction, reflector: char) -> Direction {
     match reflector {
-        '\\' => {
-            match dir {
-                Direction::Up => {
-                    Direction::Left
-                }
-                Direction::Down => {
-                    Direction::Right
-                }
-                Direction::Left => {
-                    Direction::Up
-                }
-                Direction::Right => {
-                    Direction::Down
-                }
-            }
-        }
-        '/' => {
-            match dir {
-                Direction::Up => {
-                    Direction::Right
-                }
-                Direction::Down => {
-                    Direction::Left
-                }
-                Direction::Left => {
-                    Direction::Down
-                }
-                Direction::Right => {
-                    Direction::Up
-                }
-            }
-        }
+        '\\' => match dir {
+            Direction::Up => Direction::Left,
+            Direction::Down => Direction::Right,
+            Direction::Left => Direction::Up,
+            Direction::Right => Direction::Down,
+        },
+        '/' => match dir {
+            Direction::Up => Direction::Right,
+            Direction::Down => Direction::Left,
+            Direction::Left => Direction::Down,
+            Direction::Right => Direction::Up,
+        },
         _ => {
             panic!("Not a reflector: {}", reflector);
         }
@@ -104,37 +84,28 @@ fn reflect(dir: Direction, reflector: char) -> Direction {
 
 fn split(dir: Direction, splitter: char) -> Option<(Direction, Direction)> {
     match splitter {
-        '|' => {
-            match dir {
-                Direction::Left => {
-                    Some((Direction::Up, Direction::Down))
-                }
-                Direction::Right => {
-                    Some((Direction::Up, Direction::Down))
-                }
-                _ => None
-            }
-        }
-        '-' => {
-            match dir {
-                Direction::Up => {
-                    Some((Direction::Left, Direction::Right))
-                }
-                Direction::Down => {
-                    Some((Direction::Left, Direction::Right))
-                }
-                _ => None
-            }
-        }
+        '|' => match dir {
+            Direction::Left => Some((Direction::Up, Direction::Down)),
+            Direction::Right => Some((Direction::Up, Direction::Down)),
+            _ => None,
+        },
+        '-' => match dir {
+            Direction::Up => Some((Direction::Left, Direction::Right)),
+            Direction::Down => Some((Direction::Left, Direction::Right)),
+            _ => None,
+        },
         _ => {
             panic!("Not a splitter: {}", splitter);
         }
     }
 }
 
-
-
-fn insert_beam(beams: &mut Vec<Beam>, beam: Beam, beams_cache: &mut HashSet<Beam>, energized: &mut HashSet<(usize, usize)>) {
+fn insert_beam(
+    beams: &mut Vec<Beam>,
+    beam: Beam,
+    beams_cache: &mut HashSet<Beam>,
+    energized: &mut HashSet<(usize, usize)>,
+) {
     if !beams_cache.contains(&beam) {
         beams.push(beam.clone());
         beams_cache.insert(beam.clone());
@@ -152,41 +123,90 @@ fn propagate_beam(room: Room, start: (usize, usize), start_dir: Direction) -> us
 
     let start_char: char = room[start.1][start.0];
     match start_char {
-        '\\'|'/' => {
+        '\\' | '/' => {
             let dir = reflect(start_dir, start_char);
-            insert_beam(&mut beams, Beam::new(start.0, start.1, dir), &mut beams_cache, &mut energized);
+            insert_beam(
+                &mut beams,
+                Beam::new(start.0, start.1, dir),
+                &mut beams_cache,
+                &mut energized,
+            );
         }
-        '-'|'|' => {
+        '-' | '|' => {
             if let Some((dir1, dir2)) = split(start_dir.clone(), start_char) {
-                insert_beam(&mut beams, Beam::new(start.0, start.1, dir1), &mut beams_cache, &mut energized);
-                insert_beam(&mut beams, Beam::new(start.0, start.1, dir2), &mut beams_cache, &mut energized);
+                insert_beam(
+                    &mut beams,
+                    Beam::new(start.0, start.1, dir1),
+                    &mut beams_cache,
+                    &mut energized,
+                );
+                insert_beam(
+                    &mut beams,
+                    Beam::new(start.0, start.1, dir2),
+                    &mut beams_cache,
+                    &mut energized,
+                );
             } else {
-                insert_beam(&mut beams, Beam::new(start.0, start.1, start_dir), &mut beams_cache, &mut energized)
+                insert_beam(
+                    &mut beams,
+                    Beam::new(start.0, start.1, start_dir),
+                    &mut beams_cache,
+                    &mut energized,
+                )
             }
         }
         _ => {
-            insert_beam(&mut beams, Beam::new(start.0, start.1, start_dir), &mut beams_cache, &mut energized);
+            insert_beam(
+                &mut beams,
+                Beam::new(start.0, start.1, start_dir),
+                &mut beams_cache,
+                &mut energized,
+            );
         }
     }
 
-    while beams.len() > 0 {
-        let beam = beams.pop().unwrap();
+    while let Some(beam) = beams.pop() {
         if let Some((next_x, next_y)) = beam.get_next(n_cols - 1, n_rows - 1) {
             match room[next_y][next_x] {
-                '\\'|'/' => {
+                '\\' | '/' => {
                     let next_dir = reflect(beam.dir, room[next_y][next_x]);
-                    insert_beam(&mut beams, Beam::new(next_x, next_y, next_dir), &mut beams_cache, &mut energized);
+                    insert_beam(
+                        &mut beams,
+                        Beam::new(next_x, next_y, next_dir),
+                        &mut beams_cache,
+                        &mut energized,
+                    );
                 }
-                '-'|'|' => {
+                '-' | '|' => {
                     if let Some((dir1, dir2)) = split(beam.dir.clone(), room[next_y][next_x]) {
-                        insert_beam(&mut beams, Beam::new(next_x, next_y, dir1), &mut beams_cache, &mut energized);
-                        insert_beam(&mut beams, Beam::new(next_x, next_y, dir2), &mut beams_cache, &mut energized);
+                        insert_beam(
+                            &mut beams,
+                            Beam::new(next_x, next_y, dir1),
+                            &mut beams_cache,
+                            &mut energized,
+                        );
+                        insert_beam(
+                            &mut beams,
+                            Beam::new(next_x, next_y, dir2),
+                            &mut beams_cache,
+                            &mut energized,
+                        );
                     } else {
-                        insert_beam(&mut beams, Beam::new(next_x, next_y, beam.dir), &mut beams_cache, &mut energized)
+                        insert_beam(
+                            &mut beams,
+                            Beam::new(next_x, next_y, beam.dir),
+                            &mut beams_cache,
+                            &mut energized,
+                        )
                     }
                 }
                 _ => {
-                    insert_beam(&mut beams, Beam::new(next_x, next_y, beam.dir), &mut beams_cache, &mut energized);
+                    insert_beam(
+                        &mut beams,
+                        Beam::new(next_x, next_y, beam.dir),
+                        &mut beams_cache,
+                        &mut energized,
+                    );
                 }
             }
         }
@@ -204,13 +224,13 @@ fn part1(input: &str) -> usize {
     propagate_beam(room, start, start_dir)
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn it_works() {
-        let result = part1(r".|...\....
+        let result = part1(
+            r".|...\....
 |.-.\.....
 .....|-...
 ........|.
@@ -219,7 +239,8 @@ mod tests {
 ..../.\\..
 .-.-/..|..
 .|....-|.\
-..//.|....");
+..//.|....",
+        );
         assert_eq!(result, 46);
     }
 }

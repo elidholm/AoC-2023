@@ -13,11 +13,7 @@ struct RangeMap {
 
 impl RangeMap {
     fn new(dst: usize, src: usize, length: usize) -> RangeMap {
-        RangeMap {
-            dst,
-            src,
-            length,
-        }
+        RangeMap { dst, src, length }
     }
 
     fn contains_src(&self, src: usize) -> bool {
@@ -38,7 +34,7 @@ impl IntMap {
     fn new(mut ranges: Vec<RangeMap>) -> IntMap {
         ranges.sort_by_key(|r| r.src);
 
-        IntMap{ ranges }
+        IntMap { ranges }
     }
 
     fn get(&self, src: usize) -> usize {
@@ -56,7 +52,7 @@ struct MapPipeline {
 
 impl MapPipeline {
     fn new(maps: Vec<IntMap>) -> MapPipeline {
-        MapPipeline{ maps }
+        MapPipeline { maps }
     }
 
     fn get(&self, seed: usize) -> usize {
@@ -67,22 +63,36 @@ impl MapPipeline {
 fn part1(input: &str) -> usize {
     let mut groups = input.split("\n\n");
 
-    let seeds: Vec<usize> = groups.next().unwrap().split(":").nth(1).unwrap().split_whitespace().map(|s| s.parse::<usize>().unwrap()).collect();
+    let seeds: Vec<usize> = groups
+        .next()
+        .unwrap()
+        .split(":")
+        .nth(1)
+        .unwrap()
+        .split_whitespace()
+        .map(|s| s.parse::<usize>().unwrap())
+        .collect();
     let mut maps: Vec<IntMap> = Vec::new();
     for group in groups {
         let lines = group.split(":\n").nth(1).unwrap().lines();
         let mut ranges: Vec<RangeMap> = Vec::new();
         for line in lines {
-            let range: Vec<usize> = line.split_whitespace().map(|s| s.parse::<usize>().unwrap()).collect();
+            let range: Vec<usize> = line
+                .split_whitespace()
+                .map(|s| s.parse::<usize>().unwrap())
+                .collect();
             ranges.push(RangeMap::new(range[0], range[1], range[2]));
         }
         maps.push(IntMap::new(ranges));
     }
     let pipeline: MapPipeline = MapPipeline::new(maps);
 
-    seeds.into_iter().map(|s| pipeline.get(s)).min().unwrap_or_default()
+    seeds
+        .into_iter()
+        .map(|s| pipeline.get(s))
+        .min()
+        .unwrap_or_default()
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -90,7 +100,7 @@ mod tests {
     #[test]
     fn it_works() {
         let result = part1(
-"seeds: 79 14 55 13
+            "seeds: 79 14 55 13
 
 seed-to-soil map:
 50 98 2
@@ -122,8 +132,8 @@ temperature-to-humidity map:
 
 humidity-to-location map:
 60 56 37
-56 93 4");
+56 93 4",
+        );
         assert_eq!(result, 35);
     }
 }
-

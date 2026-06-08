@@ -1,4 +1,4 @@
-use std::collections::{ HashMap, HashSet, VecDeque };
+use std::collections::{HashMap, HashSet, VecDeque};
 
 fn main() {
     let input = include_str!("./input22.txt");
@@ -119,7 +119,6 @@ impl Brick {
         }
         supported_by
     }
-
 }
 
 fn part2(input: &str) -> usize {
@@ -130,25 +129,42 @@ fn part2(input: &str) -> usize {
 
     println!("*********************\nParsing input\n*********************");
     for (id, line) in lines.clone().enumerate() {
-        let start: Vec<usize> = line.split('~').next().unwrap().split(',').map(|x| x.parse().unwrap()).collect();
+        let start: Vec<usize> = line
+            .split('~')
+            .next()
+            .unwrap()
+            .split(',')
+            .map(|x| x.parse().unwrap())
+            .collect();
         let start_cube: Cube = Cube::new(start[0], start[1], start[2]);
 
-        let end: Vec<usize> = line.split('~').last().unwrap().split(',').map(|x| x.parse().unwrap()).collect();
+        let end: Vec<usize> = line
+            .split('~')
+            .next_back()
+            .unwrap()
+            .split(',')
+            .map(|x| x.parse().unwrap())
+            .collect();
         let end_cube: Cube = Cube::new(end[0], end[1], end[2]);
 
         // Logging progress
         bricks.push_back(Brick::new(start_cube, end_cube, id));
-        if (id+1) % 200 == 0 || id == n_bricks - 1 {
-            println!("Parsed {}/{} bricks\t({}%)", id+1, n_bricks, ((id+1)*100)/n_bricks);
+        if (id + 1) % 200 == 0 || id == n_bricks - 1 {
+            println!(
+                "Parsed {}/{} bricks\t({}%)",
+                id + 1,
+                n_bricks,
+                ((id + 1) * 100) / n_bricks
+            );
         }
     }
-    bricks.make_contiguous().sort_by(|a, b| a.min_z().cmp(&b.min_z()));
+    bricks.make_contiguous().sort_by_key(|a| a.min_z());
     println!("Done\n");
 
     println!("*********************\nLetting bricks fall\n*********************");
     let mut fallen_bricks: VecDeque<Brick> = VecDeque::new();
 
-    for i in 1..=bricks.len()  {
+    for i in 1..=bricks.len() {
         let mut brick = bricks.pop_front().unwrap();
         while brick.min_z() > 1 && brick.movable(fallen_bricks.clone()) {
             brick.lower();
@@ -157,7 +173,12 @@ fn part2(input: &str) -> usize {
 
         // Logging progress
         if i % 200 == 0 || i == n_bricks {
-            println!("Let {}/{} bricks fall\t({}%)", i, n_bricks, (i*100)/n_bricks);
+            println!(
+                "Let {}/{} bricks fall\t({}%)",
+                i,
+                n_bricks,
+                (i * 100) / n_bricks
+            );
         }
     }
     println!("Done\n");
@@ -171,8 +192,13 @@ fn part2(input: &str) -> usize {
         brick_structure.insert(brick.id, (supported_by, supporting));
 
         // Logging progress
-        if (i+1) % 200 == 0 || i == n_bricks - 1 {
-            println!("Analysed {}/{} bricks\t({}%)", i+1, n_bricks, ((i+1)*100)/n_bricks);
+        if (i + 1) % 200 == 0 || i == n_bricks - 1 {
+            println!(
+                "Analysed {}/{} bricks\t({}%)",
+                i + 1,
+                n_bricks,
+                ((i + 1) * 100) / n_bricks
+            );
         }
     }
     println!("Done\n");
@@ -188,7 +214,7 @@ fn part2(input: &str) -> usize {
             for deez in supported_by {
                 let mut removable: bool = true;
                 for nuts in &brick_structure.get(&deez).unwrap().1 {
-                    if brick_structure.get(&nuts).unwrap().0.len() == 1 {
+                    if brick_structure.get(nuts).unwrap().0.len() == 1 {
                         removable = false;
                         break;
                     }
@@ -198,13 +224,11 @@ fn part2(input: &str) -> usize {
                 }
             }
         }
-        if supporting.len() == 0 {
+        if supporting.is_empty() {
             loaded_bricks.remove(&id);
         }
-
     }
     println!("Found {} loaded bricks\n", loaded_bricks.len());
-
 
     println!("*********************\nDisintegrating loaded bricks\n*********************");
     for loaded in loaded_bricks.clone() {
@@ -213,10 +237,10 @@ fn part2(input: &str) -> usize {
         fall_queue.push_back(loaded);
         fallen.insert(loaded);
         while !fall_queue.is_empty() {
-            let foo: usize = fall_queue.pop_front().unwrap();
-            for nuts in &brick_structure.get(&foo).unwrap().1 {
+            let ligma: usize = fall_queue.pop_front().unwrap();
+            for nuts in &brick_structure.get(&ligma).unwrap().1 {
                 let mut supported: bool = false;
-                for deez in &brick_structure.get(&nuts).unwrap().0 {
+                for deez in &brick_structure.get(nuts).unwrap().0 {
                     if !fallen.contains(deez) {
                         supported = true;
                     }
@@ -233,20 +257,21 @@ fn part2(input: &str) -> usize {
     secret
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn it_works() {
-        let result = part2("1,0,1~1,2,1
+        let result = part2(
+            "1,0,1~1,2,1
 0,0,2~2,0,2
 0,2,3~2,2,3
 0,0,4~0,2,4
 2,0,5~2,2,5
 0,1,6~2,1,6
-1,1,8~1,1,9");
+1,1,8~1,1,9",
+        );
         assert_eq!(result, 7);
     }
 }

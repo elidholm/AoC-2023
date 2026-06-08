@@ -13,7 +13,7 @@ fn hash_algo(input: &str) -> u32 {
         }
         hash += c as u32;
         hash *= 17;
-        hash = hash % 256;
+        hash %= 256;
     }
 
     hash
@@ -23,7 +23,7 @@ fn part1(input: &str) -> u32 {
     let mut secret: u32 = 0;
 
     let steps: Vec<&str> = input.split(",").collect();
-    
+
     for step in steps {
         let hash: u32 = hash_algo(step);
         secret += hash;
@@ -31,7 +31,6 @@ fn part1(input: &str) -> u32 {
 
     secret
 }
-
 
 #[cfg(test)]
 mod tests {

@@ -11,7 +11,7 @@ struct Position(u32, u32);
 
 fn build_grid(input: &str) -> (HashMap<Position, char>, Position) {
     let mut grid: HashMap<Position, char> = HashMap::new();
-    let mut start: Position = Position(0,0);
+    let mut start: Position = Position(0, 0);
     for (row, line) in input.lines().enumerate() {
         for (col, ch) in line.chars().enumerate() {
             grid.insert(Position(row as u32, col as u32), ch);
@@ -79,21 +79,25 @@ mod tests {
     use super::*;
     #[test]
     fn it_works() {
-        let result = part1("-L|F7
+        let result = part1(
+            "-L|F7
 7S-7|
 L|7||
 -L-J|
-L|-JF");
+L|-JF",
+        );
         assert_eq!(result, 4);
     }
 
     #[test]
     fn it_still_works() {
-        let result = part1("7-F7-
+        let result = part1(
+            "7-F7-
 .FJ|7
 SJLL7
 |F--J
-LJ.LJ");
+LJ.LJ",
+        );
         assert_eq!(result, 8);
     }
 }

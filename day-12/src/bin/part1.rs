@@ -8,9 +8,9 @@ fn main() {
     dbg!(output);
 }
 
-fn get_number_of_sols(springs: &Vec<char>, sizes: &Vec<usize>, cache: &mut Cache) -> usize {
+fn get_number_of_sols(springs: &[char], sizes: &[usize], cache: &mut Cache) -> usize {
     // check cache first
-    if let Some(&result) = cache.get(&(springs.clone(), sizes.clone())) {
+    if let Some(&result) = cache.get(&(springs.to_vec(), sizes.to_vec())) {
         return result;
     }
 
@@ -27,15 +27,18 @@ fn get_number_of_sols(springs: &Vec<char>, sizes: &Vec<usize>, cache: &mut Cache
     let result: usize = match springs[0] {
         '.' => get_number_of_sols(&Vec::from(&springs[1..]), sizes, cache),
         '#' => remove_group(springs, sizes, cache),
-        '?' => get_number_of_sols(&Vec::from(&springs[1..]), sizes, cache) + remove_group(springs, sizes, cache),
+        '?' => {
+            get_number_of_sols(&Vec::from(&springs[1..]), sizes, cache)
+                + remove_group(springs, sizes, cache)
+        }
         _ => panic!("Invalid character in input"),
     };
 
-    cache.insert((springs.clone(), sizes.clone()), result);
+    cache.insert((springs.to_vec(), sizes.to_vec()), result);
     result
 }
 
-fn remove_group(springs: &Vec<char>, sizes: &Vec<usize>, cache: &mut Cache) -> usize {
+fn remove_group(springs: &[char], sizes: &[usize], cache: &mut Cache) -> usize {
     if springs.len() < sizes[0] || springs[..sizes[0]].contains(&'.') {
         return 0;
     }
@@ -46,7 +49,11 @@ fn remove_group(springs: &Vec<char>, sizes: &Vec<usize>, cache: &mut Cache) -> u
         return 0;
     }
 
-    get_number_of_sols(&Vec::from(&springs[sizes[0] + 1..]), &Vec::from(&sizes[1..]), cache)
+    get_number_of_sols(
+        &Vec::from(&springs[sizes[0] + 1..]),
+        &Vec::from(&sizes[1..]),
+        cache,
+    )
 }
 
 fn part1(input: &str) -> usize {
@@ -56,7 +63,10 @@ fn part1(input: &str) -> usize {
     for line in lines {
         let (springs_raw, groups_raw) = line.split_once(' ').unwrap();
         let springs: Vec<char> = springs_raw.chars().collect();
-        let groups: Vec<usize> = groups_raw.split(",").map(|x| x.parse::<usize>().unwrap()).collect();
+        let groups: Vec<usize> = groups_raw
+            .split(",")
+            .map(|x| x.parse::<usize>().unwrap())
+            .collect();
 
         let mut cache: Cache = HashMap::new();
 
@@ -66,18 +76,19 @@ fn part1(input: &str) -> usize {
     secret
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn it_works() {
-        let result = part1("???.### 1,1,3
+        let result = part1(
+            "???.### 1,1,3
 .??..??...?##. 1,1,3
 ?#?#?#?#?#?#?#? 1,3,1,6
 ????.#...#... 4,1,1
 ????.######..#####. 1,6,5
-?###???????? 3,2,1");
+?###???????? 3,2,1",
+        );
         assert_eq!(result, 21);
     }
 }

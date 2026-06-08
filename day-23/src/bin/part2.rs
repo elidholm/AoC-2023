@@ -26,8 +26,16 @@ struct Hike {
 }
 
 impl Hike {
-    fn new(visited: HashSet<(usize, usize)>, current: (usize, usize), last_decision: Decision) -> Self {
-        Self { visited, current, last_decision }
+    fn new(
+        visited: HashSet<(usize, usize)>,
+        current: (usize, usize),
+        last_decision: Decision,
+    ) -> Self {
+        Self {
+            visited,
+            current,
+            last_decision,
+        }
     }
 }
 
@@ -40,16 +48,19 @@ fn parse_input(input: &str) -> (Map, (usize, usize), (usize, usize)) {
 }
 
 fn _find_start(map: &Map) -> (usize, usize) {
-    return (0, map[0].iter().position(|x| *x == '.').unwrap());
+    (0, map[0].iter().position(|x| *x == '.').unwrap())
 }
 
 fn _find_end(map: &Map) -> (usize, usize) {
     let n_rows: usize = map.len();
-    return (n_rows - 1, map[n_rows - 1].iter().position(|x| *x == '.').unwrap());
+    (
+        n_rows - 1,
+        map[n_rows - 1].iter().position(|x| *x == '.').unwrap(),
+    )
 }
 
 fn part2(input: &str) -> usize {
-    let (map, start, end): (Map, (usize, usize), (usize, usize))  = parse_input(input);
+    let (map, start, end): (Map, (usize, usize), (usize, usize)) = parse_input(input);
 
     let mut hikes: Vec<Hike> = Vec::new();
     let mut deez: HashSet<(usize, usize)> = HashSet::new();
@@ -61,15 +72,19 @@ fn part2(input: &str) -> usize {
 
     let mut n_hikes: usize = 0;
 
-    while hikes.len() > 0 {
-        let hike: Hike = hikes.pop().unwrap();
+    while let Some(hike) = hikes.pop() {
         let (y, x): (usize, usize) = hike.current;
 
         if hike.current == end {
             n_hikes += 1;
             if hike.visited.len() > longest_hike.visited.len() {
                 longest_hike = hike;
-                println!("Finished hike nr: {},\tLongest: {},\tActive hikes: {}", n_hikes, longest_hike.visited.len() - 1, hikes.len());
+                println!(
+                    "Finished hike nr: {},\tLongest: {},\tActive hikes: {}",
+                    n_hikes,
+                    longest_hike.visited.len() - 1,
+                    hikes.len()
+                );
             }
             continue;
         }
@@ -77,25 +92,32 @@ fn part2(input: &str) -> usize {
         let x_temp: isize = x as isize;
         let y_temp: isize = y as isize;
 
-        let possible_steps = vec![(y_temp, x_temp + 1), (y_temp + 1, x_temp), (y_temp, x_temp - 1), (y_temp - 1, x_temp)]
-                                    .into_iter()
-                                    .filter(|(y, x)| *y >= 0 &&
-                                                        *x >= 0 &&
-                                                        map[*y as usize][*x as usize] != '#' &&
-                                                        !dead_ends.contains(&Some((hike.current, (*y as usize, *x as usize)))))
-                                    .map(|(y, x)| (y as usize, x as usize))
-                                    .collect::<Vec<(usize, usize)>>();
+        let possible_steps = vec![
+            (y_temp, x_temp + 1),
+            (y_temp + 1, x_temp),
+            (y_temp, x_temp - 1),
+            (y_temp - 1, x_temp),
+        ]
+        .into_iter()
+        .filter(|(y, x)| {
+            *y >= 0
+                && *x >= 0
+                && map[*y as usize][*x as usize] != '#'
+                && !dead_ends.contains(&Some((hike.current, (*y as usize, *x as usize))))
+        })
+        .map(|(y, x)| (y as usize, x as usize))
+        .collect::<Vec<(usize, usize)>>();
 
         match possible_steps.len() {
             0 => {
-                dead_ends.insert(hike.last_decision.clone());
+                dead_ends.insert(hike.last_decision);
             }
             1 => {
                 let next = possible_steps[0];
                 if !hike.visited.contains(&next) {
                     let mut deez: HashSet<(usize, usize)> = hike.visited.clone();
                     deez.insert(next);
-                    hikes.push(Hike::new(deez, next, hike.last_decision.clone()));
+                    hikes.push(Hike::new(deez, next, hike.last_decision));
                 }
             }
             _ => {
@@ -113,14 +135,14 @@ fn part2(input: &str) -> usize {
     longest_hike.visited.len() - 1
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn it_works() {
-        let result = part2("#.#####################
+        let result = part2(
+            "#.#####################
 #.......#########...###
 #######.#########.#.###
 ###.....#.>.>.###.#.###
@@ -142,7 +164,8 @@ mod tests {
 #...#...#.#.>.>.#.>.###
 #.###.###.#.###.#.#v###
 #.....###...###...#...#
-#####################.#");
+#####################.#",
+        );
         assert_eq!(result, 154);
     }
 }

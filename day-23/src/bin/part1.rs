@@ -29,24 +29,27 @@ fn parse_input(input: &str) -> (Map, (usize, usize), (usize, usize)) {
 }
 
 fn _find_start(map: &Map) -> (usize, usize) {
-    return (0, map[0].iter().position(|x| *x == '.').unwrap());
+    (0, map[0].iter().position(|x| *x == '.').unwrap())
 }
 
 fn _find_end(map: &Map) -> (usize, usize) {
     let n_rows: usize = map.len();
-    return (n_rows - 1, map[n_rows - 1].iter().position(|x| *x == '.').unwrap());
+    (
+        n_rows - 1,
+        map[n_rows - 1].iter().position(|x| *x == '.').unwrap(),
+    )
 }
 
 fn uphill(map: &Map, hike: &Hike) -> bool {
     let (y, x): (usize, usize) = hike.current;
-    return (map[y][x] == '^' && hike.visited.contains(&(y - 1, x))) ||
-        (map[y][x] == 'v' && hike.visited.contains(&(y + 1, x))) ||
-        (map[y][x] == '>' && hike.visited.contains(&(y, x + 1))) ||
-        (map[y][x] == '<' && hike.visited.contains(&(y, x - 1)));
+    (map[y][x] == '^' && hike.visited.contains(&(y - 1, x)))
+        || (map[y][x] == 'v' && hike.visited.contains(&(y + 1, x)))
+        || (map[y][x] == '>' && hike.visited.contains(&(y, x + 1)))
+        || (map[y][x] == '<' && hike.visited.contains(&(y, x - 1)))
 }
 
 fn part1(input: &str) -> usize {
-    let (map, start, end): (Map, (usize, usize), (usize, usize))  = parse_input(input);
+    let (map, start, end): (Map, (usize, usize), (usize, usize)) = parse_input(input);
 
     let mut hikes: Vec<Hike> = Vec::new();
     let mut deez: HashSet<(usize, usize)> = HashSet::new();
@@ -55,8 +58,7 @@ fn part1(input: &str) -> usize {
 
     hikes.push(longest_hike.clone());
 
-    while hikes.len() > 0 {
-        let hike: Hike = hikes.pop().unwrap();
+    while let Some(hike) = hikes.pop() {
         let (y, x): (usize, usize) = hike.current;
 
         if hike.current == end || uphill(&map, &hike) {
@@ -69,14 +71,21 @@ fn part1(input: &str) -> usize {
         let x_temp: isize = x as isize;
         let y_temp: isize = y as isize;
 
-        let possible_steps = vec![(y_temp, x_temp + 1), (y_temp + 1, x_temp), (y_temp, x_temp - 1), (y_temp - 1, x_temp)]
-                                    .into_iter()
-                                    .filter(|(y, x)| *y >= 0 &&
-                                                        *x >= 0 &&
-                                                        !hike.visited.contains(&(*y as usize,*x as usize)) &&
-                                                        map[*y as usize][*x as usize] != '#')
-                                    .map(|(y, x)| (y as usize, x as usize))
-                                    .collect::<Vec<(usize, usize)>>();
+        let possible_steps = vec![
+            (y_temp, x_temp + 1),
+            (y_temp + 1, x_temp),
+            (y_temp, x_temp - 1),
+            (y_temp - 1, x_temp),
+        ]
+        .into_iter()
+        .filter(|(y, x)| {
+            *y >= 0
+                && *x >= 0
+                && !hike.visited.contains(&(*y as usize, *x as usize))
+                && map[*y as usize][*x as usize] != '#'
+        })
+        .map(|(y, x)| (y as usize, x as usize))
+        .collect::<Vec<(usize, usize)>>();
 
         for next in possible_steps {
             let mut deez: HashSet<(usize, usize)> = hike.visited.clone();
@@ -88,14 +97,14 @@ fn part1(input: &str) -> usize {
     longest_hike.visited.len() - 1
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn it_works() {
-        let result = part1("#.#####################
+        let result = part1(
+            "#.#####################
 #.......#########...###
 #######.#########.#.###
 ###.....#.>.>.###.#.###
@@ -117,7 +126,8 @@ mod tests {
 #...#...#.#.>.>.#.>.###
 #.###.###.#.###.#.#v###
 #.....###...###...#...#
-#####################.#");
+#####################.#",
+        );
         assert_eq!(result, 94);
     }
 }
